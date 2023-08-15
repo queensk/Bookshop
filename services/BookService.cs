@@ -1,3 +1,4 @@
+using System.Net.Http.Json;
 using BookShop.Models.IService;
 using Models;
 
@@ -11,13 +12,20 @@ namespace BookShop
             _HttpClient.BaseAddress = new Uri("http://localhost:3000");
         
         }
-        Task<Book> IBookShopService.AddBook(Book book)
+        async Task<Book> IBookShopService.AddBook(Book book)
         {
 
+            var content = new StringContent(book.ToJson(), System.Text.Encoding.UTF8, "application/json");
+
+            var response = await _HttpClient.PostAsJsonAsync("/books", content);
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<Book>();
+            }
             throw new NotImplementedException();
         }
 
-        Task<Book> IBookShopService.DeleteBookById(int id)
+        async Task<Book> IBookShopService.DeleteBookById(int id)
         {
             throw new NotImplementedException();
         }

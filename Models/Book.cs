@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace Models
 {
     internal class Book
@@ -26,5 +28,12 @@ namespace Models
         {
             return $"Book:{Id} Tittle{title} Author:{author} Page:{pages} language:{language}";
         }
+        // helper method that covers object to serialized json
+        public string ToJson()
+        {
+            return JsonSerializer.Serialize(this);
+        }
+
+        
     }
 }
