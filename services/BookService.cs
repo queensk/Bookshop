@@ -2,7 +2,7 @@ using System.Net.Http.Json;
 using BookShop.Models.IService;
 using Models;
 
-namespace BookShop
+namespace BookShop.services
 {
     public class BookService : IBookShopService
     {
@@ -12,15 +12,14 @@ namespace BookShop
             _HttpClient.BaseAddress = new Uri("http://localhost:3000");
         
         }
-        async Task<Book> IBookShopService.AddBook(Book book)
+        async Task<successMessage> IBookShopService.AddBook(Book book)
         {
 
             var content = new StringContent(book.ToJson(), System.Text.Encoding.UTF8, "application/json");
-
             var response = await _HttpClient.PostAsJsonAsync("/books", content);
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadFromJsonAsync<Book>();
+                return new successMessage { message = "book added successfully"};
             }
             throw new NotImplementedException();
         }

@@ -1,6 +1,8 @@
 namespace Models
 {
     public class successMessage { 
-        string message { get; set; } = string.Empty;
+
+        
+        public string message { get; set; } = string.Empty;
      }
 }

@@ -16,6 +16,6 @@ namespace BookShop.Models.IService
         Task<Book> DeleteBookById(int id);
         
         // create book
-        Task<Book> AddBook(Book book);
+        Task<successMessage> AddBook(Book book);
     }
 }
