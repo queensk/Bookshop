@@ -1,53 +1,134 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using BookShop.Models.IService;
+using BookShop.services;
+using BookShop.Views;
+using Models;
 
-
-namespace Bookshop.controllers
+namespace BookShop.controller
 {
-    using System.Diagnostics;
-    using BookShop.helper;
     public class BookshopController
     {
-        // public static void init application
-        public static void initApplication()
-        {
-            Console.WriteLine("Welcome to the Bookshop");
-            Console.WriteLine("=======================");
-            Console.WriteLine("1. Add a book");
-            Console.WriteLine("2. List all books");
-            Console.WriteLine("3 Update a book");
-            Console.WriteLine("4 Delete a book");
+        private readonly IBookShopService _bookService;
+        private readonly BookshopView _view;
 
-            string? userChoice = Console.ReadLine();
-            bool isValid = Constants.validateOptions(userChoice, 1, 4);
-            if (!isValid){
-                BookshopController.initApplication();
-            }
-            else{
-                new BookshopController.menuRedirect(userChoice)
-            }
+        public BookshopController(IBookShopService bookService, BookshopView view)
+        {
+            _bookService = bookService;
+            _view = view;
         }
 
-        public void menuRedirect(string useRoute)
+        public async Task InitApplication()
         {
-            switch(useRoute)
+            bool running = true;
+
+            while (running)
             {
-                case "1":
-                    // route to add a book
-                    break;
-                case "2":
-                    // route to list all books
-                    break;
-                case "3":
-                    // route to update a book
-                    break;
-                case "4":
-                    // route to delete a book
-                    break;
-                default:
-                    // route to init application
-                    break;
+                _view.DisplayMenu();
+                string choice = _view.GetUserChoice();
+
+                switch (choice)
+                {
+                    case "1":
+                        await AddBookAsync();
+                        break;
+                    case "2":
+                        await ListAllBooksAsync();
+                        break;
+                    case "3":
+                        await ViewBookDetailsAsync();
+                        break;
+                    case "4":
+                        await UpdateBookAsync();
+                        break;
+                    case "5":
+                        await DeleteBookAsync();
+                        break;
+                    case "6":
+                        running = false;
+                        break;
+                    default:
+                        _view.DisplayMessage("Invalid choice. Please try again.");
+                        break;
+                }
             }
         }
-        
+
+        private async Task AddBookAsync()
+        {
+            _view.DisplayMessage("Enter book details:");
+            Book book = _view.GetBookInput();
+            successMessage result = await _bookService.AddBook(book);
+            _view.DisplayMessage(result.message);
+        }
+
+        private async Task ListAllBooksAsync()
+        {
+            List<Book> books = await _bookService.GetAllBooks();
+            _view.DisplayBooks(books);
+        }
+
+        private async Task ViewBookDetailsAsync()
+        {
+            string id = _view.GetBookIdInput();
+            Book book = await _bookService.GetBookById(id);
+
+            if (book != null)
+            {
+                _view.DisplayBookDetails(book);
+            }
+            else
+            {
+                _view.DisplayMessage("Book not found.");
+            }
+        }
+
+        private async Task UpdateBookAsync()
+        {
+            _view.DisplayMessage("Enter book ID: ");
+            string id = Console.ReadLine();
+
+            Book book = await _bookService.GetBookById(id);
+
+            if (book != null)
+            {
+                _view.DisplayMessage("Enter updated book details:");
+                Book updatedBook = _view.GetBookInput();
+                Console.WriteLine(updatedBook.Title);
+
+                successMessage result = await _bookService.UpdateBookById(id, updatedBook);
+
+                if (result != null)
+                {
+                    _view.DisplayMessage($"Book with ID {id} updated successfully.");
+                }
+                else
+                {
+                    _view.DisplayMessage("Failed to update book.");
+                }
+            }
+            else
+            {
+                _view.DisplayMessage("Book not found.");
+            }
+        }
+
+
+        private async Task DeleteBookAsync()
+        {
+            string id = _view.GetBookIdInput();
+            Book bookToDelete = await _bookService.GetBookById(id);
+
+            if (bookToDelete != null)
+            {
+                successMessage result = await _bookService.DeleteBookById(id);
+                _view.DisplayMessage(result.message);
+            }
+            else
+            {
+                _view.DisplayMessage("Book not found.");
+            }
+        }
     }
-    // public static void init application
 }
