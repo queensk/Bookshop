@@ -1,39 +1,40 @@
+using System;
 using System.Text.Json;
 
 namespace Models
 {
-    internal class Book
+    public class Book
     {
-        public string Id { get; set; }
-        public string title { get; set; }
-        public string author { get; set; }
-        public int pages { get; set; }
-        public string language { get; set; }
+        public string Title { get; set; }
+        public string Author { get; set; }
+        public int Pages { get; set; }
+        public string Language { get; set; }
 
-        Book(string id, string title, string author, int pages, string language)
+        public Book(string title, string author, int pages, string language)
         {
-            this.Id=id;
-            this.title=title;
-            this.author=author;
-            this.pages=pages;
-            this.language=language;
+            Title = title;
+            Author = author;
+            Pages = pages;
+            Language = language;
         }
 
-        // getters and setters
-        public void printBook()
+        public Book()
+        {
+        }
+
+        public void PrintBook()
         {
             Console.WriteLine(this);
         }
+
         public override string ToString()
         {
-            return $"Book:{Id} Tittle{title} Author:{author} Page:{pages} language:{language}";
+            return $"Title:{Title} Author:{Author} Pages:{Pages} Language:{Language}";
         }
-        // helper method that covers object to serialized json
+
         public string ToJson()
         {
             return JsonSerializer.Serialize(this);
         }
-
-        
     }
 }
