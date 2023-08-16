@@ -1,28 +1,30 @@
+using System;
+using System.Collections.Generic;
+
 namespace BookShop.helper
 {
-    internal static class Constants
-    {   
-        // validate empty stings and nulls
-        public static bool validatestring(List<string> inputs){
-            bool valid = false;
-
+    public static class Constants
+    {
+        public static bool ValidateString(List<string> inputs)
+        {
             foreach (var input in inputs)
             {
                 if (string.IsNullOrWhiteSpace(input))
                 {
-                    valid = false;
-                    break;
+                    return false;
                 }
             }
-            return valid;
+            return true;
         }
 
-        public static bool validateOptions(string? input, int start, int end){
-            if (int.Parse(input) >= start && int.Parse(input) <= end)
+        public static bool ValidateOptions(string? input, int start, int end)
+        {
+            if (int.TryParse(input, out int value) && value >= start && value <= end)
             {
                 return true;
             }
-            else{
+            else
+            {
                 Console.WriteLine("Invalid option, please try again.");
                 return false;
             }
