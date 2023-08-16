@@ -1,4 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text;
+using System.Threading.Tasks;
 using BookShop.Models.IService;
 using Models;
 
@@ -6,42 +12,71 @@ namespace BookShop.services
 {
     public class BookService : IBookShopService
     {
-        private readonly HttpClient _HttpClient = new HttpClient();
+        private readonly HttpClient _httpClient = new HttpClient();
+
         public BookService()
         {
-            _HttpClient.BaseAddress = new Uri("http://localhost:3000");
-        
+            _httpClient.BaseAddress = new Uri("http://localhost:3000");
         }
-        async Task<successMessage> IBookShopService.AddBook(Book book)
-        {
 
-            var content = new StringContent(book.ToJson(), System.Text.Encoding.UTF8, "application/json");
-            var response = await _HttpClient.PostAsJsonAsync("/books", content);
+        public async Task<successMessage> AddBook(Book book)
+        {
+            var json = JsonSerializer.Serialize(book);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync("books", content);
             if (response.IsSuccessStatusCode)
             {
-                return new successMessage { message = "book added successfully"};
+                return new successMessage { message = "Book added successfully" };
             }
-            throw new NotImplementedException();
+            else
+            {
+                throw new Exception("Failed to add book.");
+            }
         }
 
-        async Task<Book> IBookShopService.DeleteBookById(int id)
+        public async Task<List<Book>> GetAllBooks()
         {
-            throw new NotImplementedException();
+            var response = await _httpClient.GetFromJsonAsync<List<Book>>("books");
+            return response ?? new List<Book>();
         }
 
-        Task<List<Book>> IBookShopService.GetAllBooks()
+        public async Task<Book> GetBookById(string id)
         {
-            throw new NotImplementedException();
+            var response = await _httpClient.GetFromJsonAsync<Book>($"books/{id}");
+            return response;
         }
 
-        Task<Book> IBookShopService.GetBookById(int id)
+        public async Task<successMessage> UpdateBookById(string id, Book book)
         {
-            throw new NotImplementedException();
+            var json = JsonSerializer.Serialize(book);
+            Console.WriteLine(json);
+            
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PutAsync($"books/{id}", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                 return new successMessage { message = "Book updated successfully" };
+            }
+            else
+            {
+                throw new Exception("Failed to update book.");
+            }
         }
 
-        Task<Book> IBookShopService.UpdateBookById(int id, Book book)
+        public async Task<successMessage> DeleteBookById(string id)
         {
-            throw new NotImplementedException();
+            var response = await _httpClient.DeleteAsync($"books/{id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                return new successMessage { message = "Book deleted successfully" };
+            }
+            else
+            {
+                throw new Exception("Failed to delete book.");
+            }
         }
+
     }
 }
